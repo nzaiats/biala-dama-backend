@@ -44,6 +44,17 @@ app.use((req, res, next) => {
     next();
 });
 
+// ── Wyłączenie cache dla endpointów API ──────────────────────────────────────
+// Render/CDN może cache'ować GET-y i zwracać stare dane (status 304).
+// Tutaj wymuszamy świeże dane przy każdym żądaniu do /api/*
+app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Konfiguracja sesji: cross-origin wymaga sameSite='none' + secure ────────

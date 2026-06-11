@@ -1,0 +1,20 @@
+{
+  "name": "dworek-biala-dama",
+  "version": "1.0.0",
+  "description": "Aplikacja webowa do zarządzania rezerwacjami stolików — Dworek Biała Dama",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.22.1",
+    "express-session": "^1.18.1",
+    "sqlite3": "^5.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "ISC"
+}

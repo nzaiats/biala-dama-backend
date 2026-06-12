@@ -4,8 +4,6 @@
  *
  * Start:  node server.js
  * URL:    http://localhost:3000
- *
- * Place all frontend files in ./public/
  */
 'use strict';
 
@@ -23,14 +21,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // ── CORS: pozwala frontendowi na Vercel komunikować się z tym backendem ─────
-// Konfiguracja przez zmienną środowiskową FRONTEND_URL (np. https://biala-dama.vercel.app)
-const ALLOWED_ORIGINS = [
-    process.env.FRONTEND_URL,                  // produkcja (Vercel)
-    'http://localhost:3000',                   // lokalny frontend
-    'http://localhost:5500',                   // VS Code Live Server
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:5500',
-].filter(Boolean);
+// Konfiguracja przez zmienną środowiskową FRONTEND_URL (np. https://biala-dama-frontend.vercel.app)
+const ALLOWED_ORIGINS = [process.env.FRONTEND_URL].filter(Boolean);
 
 app.use((req, res, next) => {
     const origin = req.headers.origin;
@@ -54,8 +46,6 @@ app.use('/api', (req, res, next) => {
     res.set('Surrogate-Control', 'no-store');
     next();
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ── Konfiguracja sesji: cross-origin wymaga sameSite='none' + secure ────────
 const isProduction = process.env.NODE_ENV === 'production';
@@ -303,11 +293,6 @@ app.post('/api/templates/:hall/:slot', auth, (req, res) => {
         err => err ? res.status(500).json({ error: err.message }) : res.json({ success: true }));
 });
 
-// ── Catch-all: serve index.html for SPA routes ────────────────────────────────
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 // ── Monthly database cleanup ─────────────────────────────────────────────────
 // Runs automatically: on server start + every 24 hours.
 // Deletes reservations older than 1 month (31 days) from the 'history' —
@@ -346,11 +331,10 @@ initDatabase(() => {
     app.listen(PORT, () => {
         console.log(`
 ╔════════════════════════════════════════╗
-║    🏛  DWOREK BIAŁA DAMA — SERVER     ║
+║    🏛  DWOREK BIAŁA DAMA — API        ║
 ╠════════════════════════════════════════╣
-║  URL : http://localhost:${PORT}           ║
-║  DB  : data/bialadama.db               ║
-║  Pliki: ./public/                       ║
+║  Port : ${PORT}                            ║
+║  DB   : ${process.env.DB_DIR || './data'}/bialadama.db
 ╚════════════════════════════════════════╝
         `);
     });

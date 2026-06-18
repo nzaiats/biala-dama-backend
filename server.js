@@ -175,6 +175,27 @@ app.post('/api/reservations', (req, res) => {
         });
 });
 
+// ── Public: minimalne dane o zajętości stolików ──────────────────────────────
+// Endpoint publiczny (bez auth) - wymagany do prawidłowego wyświetlania mapy
+// dla niezalogowanych gości w trakcie wyboru stolika.
+// Zwraca TYLKO numery stolików, godziny i czasy trwania - bez danych osobowych
+// gości (imię, nazwisko, telefon, email, notatki).
+app.get('/api/reservations/busy/:hall/:date', (req, res) => {
+    db.all(
+        `SELECT table_num, time, duration FROM reservations
+         WHERE hall=? AND date=? AND status != 'cancelled'`,
+        [req.params.hall, req.params.date],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json((rows||[]).map(r => ({
+                tableNum: r.table_num,
+                time:     r.time,
+                duration: r.duration
+            })));
+        }
+    );
+});
+
 app.get('/api/reservations', auth, (req, res) => {
     const { status, hall } = req.query;
     let sql = 'SELECT * FROM reservations WHERE 1=1';
